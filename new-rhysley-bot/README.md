@@ -219,3 +219,6 @@ Here are some common commands to manage your applications:
     ```
 
 This setup will run your backend server and serve your frontend applications as background processes, automatically restarting them if they crash.
+
+
+uvicorn app.main:app --host 0.0.0.0 --port 8001

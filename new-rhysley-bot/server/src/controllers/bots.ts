@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import axios from 'axios';
 import FormData from 'form-data';
+import cuid from "cuid";
 
 // A helper function to construct the full URL
 const getAbsoluteUrl = (path: string | null | undefined) => {
@@ -359,7 +360,7 @@ export const uploadKnowledge = async (req: AuthenticatedRequest, res: express.Re
                 INSERT INTO "KnowledgeChunk" ("id", "createdAt", "updatedAt", "knowledgeSourceId", "content", "embedding")
                 VALUES ${Prisma.join(
                     chunkData.map(
-                    (d) => Prisma.sql`(uuid_generate_v4(), NOW(), NOW(), ${d.knowledgeSourceId}, ${d.content}, ${d.embedding}::vector)`
+                        (d) => Prisma.sql`(${cuid()}, NOW(), NOW(), ${d.knowledgeSourceId}, ${d.content}, ${d.embedding}::vector)`
                     )
                 )}
             `;
