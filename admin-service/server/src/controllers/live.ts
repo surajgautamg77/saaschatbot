@@ -1,6 +1,6 @@
 import * as express from 'express';
 import prisma from '../db.js';
-import { Role, type ChatMessage } from '../types';
+import { Role, type ChatMessage } from '../types/index.js';
 import { uuidv4 } from '../utils/uuid.js';
 import { sendToSession, notifyAdmin } from '../websocket.js';
 

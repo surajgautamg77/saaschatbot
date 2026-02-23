@@ -4,7 +4,7 @@
 
 import prisma from '../db.js';
 import { sendToSession, notifyAdmin } from '../websocket.js';
-import { Role } from '../types';
+import { Role } from '../types/index.js';
 import { uuidv4 } from '../utils/uuid.js';
 
 // --- API Configuration ---
