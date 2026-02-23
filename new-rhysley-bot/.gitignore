@@ -1,0 +1,43 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.env
+
+node_modules
+dist
+dist-ssr
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+backups/*
+uploads/temp/*
+
+# But negate this
+!backups/.gitkeep
+!uploads/**/.gitkeep
+
+#
+*.png
+*.jpg
+
+
+# you can remove this (these files are only in my side)
+temp readme.md
+whole_project_structure.md
+delete.md
+export.md
+temp

@@ -1,0 +1,185 @@
+
+
+/*
+  This @theme block is the new, correct way to configure your
+  custom theme in Tailwind CSS v4.
+*/
+@theme {
+  --font-family-sans: 'Inter', 'sans-serif';
+
+  /* ===== Brand ===== */
+  --rhysley-brand-color: #2563eb;
+  --color-brand-primary: var(--rhysley-brand-color, #2563eb);
+  --color-brand-accent: #22d3ee;
+  --color-brand-secondary: #64748b;
+
+  /* ===== Backgrounds ===== */
+  --color-light-bg: #f8fafc;
+
+  /* ⭐ UPDATED DARK GRAY (professional) */
+  --color-dark-bg: #1f2937;
+
+  /* Header/Footer slightly darker */
+  --color-dark-card: #111827;
+
+  /* ===== Text ===== */
+  --color-dark-text: #e5e7eb;
+  --color-light-text: #1e293b;
+
+  /* ===== Status ===== */
+  --color-success: #10b981;
+  --color-error: #ef4444;
+}
+
+/* This line imports Tailwind's base, components, and utilities,
+     and it will now automatically use the theme variables defined above. */
+@import "tailwindcss";
+
+
+/* Your custom styles go below and will remain untouched. */
+.chat-bubble-bot strong {
+  font-weight: 600;
+}
+
+.chat-bubble-bot ul,
+.chat-bubble-bot ol {
+  padding-left: 25px; /* Increased indentation */
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  list-style-position: outside;
+}
+
+.chat-bubble-bot ul {
+  list-style-type: disc;
+}
+
+.chat-bubble-bot ol {
+  list-style-type: decimal;
+}
+
+.chat-bubble-bot li {
+  margin-bottom: 0.5rem; /* Increased spacing between items */
+  line-height: 1.5; /* Improved line height */
+}
+
+/* Remove margin for paragraphs that are inside list items to avoid double margin */
+.chat-bubble-bot li > p {
+    margin-bottom: 0;
+}
+
+.chat-bubble-bot a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.dark .chat-bubble-bot a {
+  color: #60a5fa;
+}
+
+.chat-bubble-bot p {
+  margin-bottom: 0.5rem;
+}
+
+.chat-bubble-bot p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-bubble-bot p {
+  overflow-wrap: break-word;
+  word-wrap: break-all;
+}
+
+@keyframes pulse-once {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 1s ease-in-out infinite;
+}
+
+/* Custom Scrollbar Styles for Webkit (Chrome, Safari, Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 1px; /* 1 pixel scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Make track completely transparent */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(74, 85, 104, 0.7); /* Slightly more opaque thumb */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(106, 118, 142, 0.9); /* More opaque on hover */
+}
+
+/* Custom Scrollbar Styles for Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin; /* 'thin' is the closest value to 1px */
+  scrollbar-color: rgba(74, 85, 104, 0.7) transparent;
+}
+
+/* Base chat input color so normal and autofill text match */
+#rhysley-chat-input {
+  color: var(--color-dark-text);
+  caret-color: var(--color-dark-text);
+}
+
+/* Keep chat input looking the SAME even when browser shows autofill / suggestions */
+#rhysley-chat-input:-webkit-autofill,
+#rhysley-chat-input:-webkit-autofill:hover,
+#rhysley-chat-input:-webkit-autofill:focus {
+  /* Force same light text color as normal input */
+  -webkit-text-fill-color: var(--color-dark-text) !important;
+  caret-color: var(--color-dark-text) !important;
+
+  /* Remove Chrome's white/yellow background and keep our own */
+  background-color: transparent !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+#rhysley-chat-input:-moz-autofill {
+  -moz-text-fill-color: var(--color-dark-text) !important;
+  caret-color: var(--color-dark-text) !important;
+  background-color: transparent !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
+}
+
+/* Responsive widget tweaks */
+#rhysley-chat-window {
+  max-width: calc(100% - 20px);
+}
+
+@media (max-width: 480px) {
+  #rhysley-chat-window {
+    right: 10px !important;
+    bottom: 10px !important;
+    width: calc(100% - 20px) !important;
+    height: 92vh !important;
+    border-radius: 12px !important;
+  }
+
+  #rhysley-chat-window header h1 {
+    font-size: 1rem;
+  }
+}
+
+/* Ensure chat bubbles wrap and don't overflow */
+.chat-bubble-bot, .prose { word-break: break-word; overflow-wrap: anywhere; }
+
+/* Make input and buttons more touch friendly */
+#rhysley-chat-pannel input, #rhysley-chat-pannel button { touch-action: manipulation; }

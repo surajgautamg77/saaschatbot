@@ -1,0 +1,46 @@
+{
+  "name": "@rhysley/server",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "prisma generate && npx tsx watch src/index.ts",
+    "build": "prisma generate && tsc",
+    "start": "node --require tsconfig-paths/register dist/index.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.15.0",
+    "@prisma/client": "^5.15.0",
+    
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.7.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^7.0.6",
+    "openai": "^4.104.0",
+    "pdf.js-extract": "^0.2.1",
+    "tsconfig-paths": "^4.2.0",
+    "ws": "^8.18.0",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^1.4.11",
+    "@types/nodemailer": "^7.0.1",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/ws": "^8.5.10",
+    "@types/node-cron": "^3.0.11",
+    "prisma": "^5.15.0"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  }
+}

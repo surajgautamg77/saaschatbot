@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RhysleyBot - Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/chatbot--v1.png" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            'brand-primary': '#ffd400',
+            'brand-secondary': '#ffd400',
+            'light-bg': '#f1f5f9',
+            'dark-bg': '#0f172a',
+            'dark-card': '#1e293b',
+            'dark-text': '#e2e8f0',
+            'light-text': '#0f172a',
+          },
+        },
+      },
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* This is our new background style */
+    body {
+      background-color: #020617;
+      /* fallback */
+      background-image: radial-gradient(at 20% 20%, hsla(212, 60%, 15%, 1) 0px, transparent 50%),
+        radial-gradient(at 80% 20%, hsla(280, 50%, 15%, 1) 0px, transparent 50%),
+        radial-gradient(at 20% 80%, hsla(320, 50%, 20%, 1) 0px, transparent 50%),
+        radial-gradient(at 80% 80%, hsla(240, 60%, 15%, 1) 0px, transparent 50%);
+      background-attachment: fixed;
+      /* Keep the gradient in place on scroll */
+    }
+  </style>
+</head>
+
+<body class="dark text-dark-text">
+  <div id="root"></div>
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+
+</html>

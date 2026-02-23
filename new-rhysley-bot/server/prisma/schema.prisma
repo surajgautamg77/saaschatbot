@@ -1,0 +1,258 @@
+// This is the new, refactored schema for a multi-brand, multi-bot architecture.
+// Key changes have been made to the Company, Bot, Session, KnowledgeSource,
+// KnowledgeChunk, and Booking models to reflect the new design.
+
+datasource db {
+  provider            = "postgresql"
+  url                 = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+// --- ENUMS (No changes needed) ---
+enum Role {
+  OWNER
+  MANAGER
+  AGENT
+  SUPER_ADMIN
+}
+
+enum ChatStatus {
+  GREEN
+  YELLOW
+  RED
+  NONE
+}
+
+enum SessionStatus {
+  bot
+  admin
+}
+
+// --- CORE MODELS (Refactored) ---
+
+// The Company model is now purely a tenant/owner entity.
+// It holds users and bots, and defines agent working hours.
+model Company {
+  id                 String       @id @default(cuid())
+  name               String
+  timeZone           String?      @default("UTC")
+  businessHoursStart Int?         @default(9)
+  businessHoursEnd   Int?         @default(18)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  sessionCounter     Int          @default(0)
+
+  // Relations
+  users              User[]
+  bots               Bot[]
+  invitations        Invitation[]
+  sessions           Session[]
+}
+
+// The Bot model is now the central entity for a specific brand/website.
+// It holds all branding, knowledge, and booking information.
+model Bot {
+  id                String    @id @default(cuid())
+  name              String
+  
+  // --- Fields moved from Company ---
+  publicApiKey      String    @unique @default(cuid())
+  botName           String?
+  companyName       String?   @map("tenantName")
+  companyDescription String?  @map("tenantDescription")
+  welcomeMessage    String?
+  systemInstruction String?
+  widgetColor       String?   @default("#07a74d")
+  botLogoUrl        String?
+  popupDelay        Int?      @default(0)
+  showUserForm      Boolean   @default(true)
+  formFields        Json?     @default("[{\"id\":\"name\",\"name\":\"name\",\"type\":\"text\",\"label\":\"Name\",\"placeholder\":\"Enter your name\",\"required\":true,\"enabled\":true},{\"id\":\"email\",\"name\":\"email\",\"type\":\"email\",\"label\":\"Email\",\"placeholder\":\"Enter your email\",\"required\":true,\"enabled\":true},{\"id\":\"mobile\",\"name\":\"mobile\",\"type\":\"tel\",\"label\":\"Mobile Number\",\"placeholder\":\"Enter your mobile number\",\"required\":false,\"enabled\":true}]")
+  historyExpiryHours Int?     @default(24) // Clear chat history after X hours of inactivity
+  chatInactivityTimeout Int?  @default(300)
+
+  // --- Relations ---
+  companyId         String
+  company           Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  nodes             Node[]
+  edges             Edge[]
+  knowledgeSources  KnowledgeSource[]
+  bookings          Booking[]
+  sessions          Session[]
+
+  @@unique([name, companyId])
+  @@index([companyId])
+}
+
+// Sessions are linked to both Company (for agent access) and Bot (for origin).
+model Session {
+  sessionId         String        @id
+  status            SessionStatus
+  chatStatus        ChatStatus    @default(GREEN)
+  lastSeen          BigInt
+  lastMessage       String
+  ip                String
+  userAgent         String?
+  location          String?
+  currentNodeId     String?
+  variables         Json?         @default("{}")
+  isOnline          Boolean       @default(false)
+  sessionNumber     Int?
+  requiresAttention Boolean       @default(false)
+  privateNotes      Json?         @default("[]")
+  lastMessageAt     DateTime?     @default(now())
+  isToReassign      Boolean       @default(false)
+
+  // --- Relations ---
+  messages          Message[]
+  companyId         String        // Used for tenancy and agent access control.
+  company           Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  botId             String        // NEW: Tracks which bot this session belongs to.
+  bot               Bot           @relation(fields: [botId], references: [id], onDelete: Cascade)
+  assignedToId      String?
+  assignedTo        User?         @relation("AssignedChats", fields: [assignedToId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  visitor           Visitor?      // One-to-one relation with Visitor
+
+  wasEverAssignedToAdmin Boolean @default(false)
+  lastAssignedTo         Json?
+  
+  @@index([assignedToId])
+  @@index([companyId, requiresAttention])
+  @@index([botId])
+}
+
+// Visitor table to store pre-chat form details
+model Visitor {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String?   @unique
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Relations ---
+  sessionId String   @unique
+  session   Session  @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+// Knowledge is now linked directly to a Bot.
+model KnowledgeSource {
+  id          String           @id @default(cuid())
+  fileName    String
+  storagePath String
+  fileType    String
+  createdAt   DateTime         @default(now())
+  
+  // --- Relations (Changed from Company to Bot) ---
+  botId       String
+  bot         Bot              @relation(fields: [botId], references: [id], onDelete: Cascade)
+  chunks      KnowledgeChunk[]
+
+  @@index([botId])
+}
+
+// Knowledge Chunks are cleaned up, belonging only to a KnowledgeSource.
+model KnowledgeChunk {
+  id                String          @id @default(cuid())
+  content           String
+  embedding         Unsupported("vector(768)")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // --- Relations ---
+  knowledgeSourceId String
+  knowledgeSource   KnowledgeSource @relation(fields: [knowledgeSourceId], references: [id], onDelete: Cascade)
+
+  @@index([knowledgeSourceId])
+}
+
+
+// Bookings are now linked directly to a Bot.
+model Booking {
+  id        String   @id @default(uuid())
+  date      DateTime
+  name      String
+  email     String
+  phone     String
+  details   String
+
+  // --- Relations (Changed from Company to Bot) ---
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@index([botId])
+}
+
+// --- SUPPORTING MODELS (No major changes needed) ---
+
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  passwordHash     String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  companyId        String
+  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  role             Role      @default(AGENT)
+  assignedSessions Session[] @relation("AssignedChats")
+  lastActivity     DateTime?
+
+  @@index([companyId])
+}
+
+model Invitation {
+  id        String   @id @default(cuid())
+  email     String
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  role      Role     @default(AGENT)
+
+  @@unique([email, companyId])
+  @@index([companyId])
+}
+
+model Node {
+  id          String @id @default(cuid())
+  botId       String
+  bot         Bot    @relation(fields: [botId], references: [id], onDelete: Cascade)
+  type        String
+  position    Json
+  data        Json
+  sourceEdges Edge[] @relation("SourceNode")
+  targetEdges Edge[] @relation("TargetNode")
+  
+  @@index([botId])
+}
+
+model Edge {
+  id           String  @id @default(cuid())
+  botId        String
+  bot          Bot     @relation(fields: [botId], references: [id], onDelete: Cascade)
+  sourceNodeId String
+  targetNodeId String
+  sourceHandle String?
+  sourceNode   Node    @relation("SourceNode", fields: [sourceNodeId], references: [id])
+  targetNode   Node    @relation("TargetNode", fields: [targetNodeId], references: [id])
+
+  @@index([botId])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+  role      String
+  text      String
+  createdAt DateTime @default(now())
+
+  @@index([sessionId, createdAt])
+}

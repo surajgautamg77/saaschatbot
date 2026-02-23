@@ -1,0 +1,38 @@
+services:
+  app:
+    build: .
+    container_name: chatbot-fastapi
+    environment:
+      - DATABASE_URL=postgresql://adarsh1927:Adarsh%40123@postgres:5432/rhysleydb
+      - HF_TOKEN=${HF_TOKEN}
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - rhysley-bot_default
+  postgres:
+    image: postgres:15
+    container_name: chatbot-postgres
+    environment:
+      - POSTGRES_USER=adarsh1927
+      - POSTGRES_PASSWORD=Adarsh@123
+      - POSTGRES_DB=rhysleydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - rhysley-bot_default
+  redis:
+    image: redis:7
+    container_name: chatbot-redis
+    networks:
+      - rhysley-bot_default
+volumes:
+  pgdata:
+networks:
+  rhysley-bot_default:
+    external: true

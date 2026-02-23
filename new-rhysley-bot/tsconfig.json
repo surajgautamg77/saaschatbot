@@ -1,0 +1,22 @@
+// ./tsconfig.json (FINAL CORRECTED VERSION)
+{
+  "compilerOptions": {
+    "baseUrl": ".", 
+    "paths": {
+      // REMOVED the aliases for packages that are handled by project references.
+      // The build process will now correctly use the compiled types from the 'dist' folders.
+      
+    },
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "exclude": ["node_modules"]
+}

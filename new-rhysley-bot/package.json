@@ -1,0 +1,26 @@
+{
+  "name": "rhysley-bot-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "admin",
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @rhysley/server\" \"npm run dev -w @rhysley/admin\" \"npm run dev -w @rhysley/client\"",
+    "build": "npm run build -w @rhysley/server && npm run build -w @rhysley/admin && npm run build -w @rhysley/client"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^8.2.2",
+    "tsx": "^4.15.6",
+    "typescript": "^5.4.5",
+    "vite": "^7.1.0"
+  },
+  "dependencies": {
+    "build": "^0.1.4"
+  }
+}
