@@ -4,7 +4,8 @@ import { AuthenticatedRequest } from '../middleware/auth.js';
 import { Prisma } from '@prisma/client';
 import * as path from 'path';
 import * as fs from 'fs';
-
+import axios from 'axios';
+import FormData from 'form-data';
 
 // A helper function to construct the full URL
 const getAbsoluteUrl = (path: string | null | undefined) => {
@@ -310,5 +311,65 @@ export const deleteBotLogo = async (req: AuthenticatedRequest, res: express.Resp
         res.status(200).json({ message: 'Logo deleted successfully.' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to delete logo.' });
+    }
+};
+
+export const uploadKnowledge = async (req: AuthenticatedRequest, res: express.Response) => {
+    const { id: botId } = req.params;
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+        return res.status(400).json({ message: 'No files uploaded.' });
+    }
+
+    try {
+        for (const file of files) {
+            const formData = new FormData();
+            const fileStream = fs.createReadStream(file.path);
+            formData.append('file', fileStream, {
+                filename: file.originalname,
+                contentType: file.mimetype,
+            });
+            
+            const pythonServiceUrl = process.env.PYTHON_SERVICE_URL || 'http://localhost:8001';
+            const response = await axios.post(`${pythonServiceUrl}/process-pdf/`, formData, {
+                headers: {
+                    ...formData.getHeaders(),
+                },
+            });
+
+            const { chunks } = response.data;
+
+            const knowledgeSource = await prisma.knowledgeSource.create({
+                data: {
+                    botId,
+                    fileName: file.originalname,
+                    storagePath: file.path,
+                    fileType: file.mimetype,
+                },
+            });
+
+            const chunkData = chunks.map((chunk: any) => ({
+                knowledgeSourceId: knowledgeSource.id,
+                content: chunk.text,
+                embedding: `[${chunk.embedding.join(',')}]`,
+            }));
+
+            await prisma.$executeRaw`
+                INSERT INTO "KnowledgeChunk" ("knowledgeSourceId", "content", "embedding")
+                VALUES ${Prisma.join(
+                    chunkData.map(
+                    (d) => Prisma.sql`(${d.knowledgeSourceId}, ${d.content}, ${d.embedding}::vector)`
+                    )
+                )}
+            `;
+
+            fs.unlinkSync(file.path);
+        }
+
+        res.status(200).json({ message: 'Files processed and knowledge base updated.' });
+    } catch (error) {
+        console.error('Error processing files:', error);
+        res.status(500).json({ message: 'Failed to process files.' });
     }
 };
