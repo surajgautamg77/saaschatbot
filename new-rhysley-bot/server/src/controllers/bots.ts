@@ -356,10 +356,10 @@ export const uploadKnowledge = async (req: AuthenticatedRequest, res: express.Re
             }));
 
             await prisma.$executeRaw`
-                INSERT INTO "KnowledgeChunk" ("knowledgeSourceId", "content", "embedding")
+                INSERT INTO "KnowledgeChunk" ("id", "createdAt", "updatedAt", "knowledgeSourceId", "content", "embedding")
                 VALUES ${Prisma.join(
                     chunkData.map(
-                    (d) => Prisma.sql`(${d.knowledgeSourceId}, ${d.content}, ${d.embedding}::vector)`
+                    (d) => Prisma.sql`(uuid_generate_v4(), NOW(), NOW(), ${d.knowledgeSourceId}, ${d.content}, ${d.embedding}::vector)`
                     )
                 )}
             `;

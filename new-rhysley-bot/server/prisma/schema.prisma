@@ -96,7 +96,7 @@ model Session {
   lastSeen          BigInt
   lastMessage       String
   ip                String
-  userAgent         String?
+  userAgent          String?
   location          String?
   currentNodeId     String?
   variables         Json?         @default("{}")
