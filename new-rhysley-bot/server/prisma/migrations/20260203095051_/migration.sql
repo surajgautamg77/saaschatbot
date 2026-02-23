@@ -98,7 +98,7 @@ CREATE TABLE "KnowledgeSource" (
 CREATE TABLE "KnowledgeChunk" (
     "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "embedding" vector(768) NOT NULL,
+    "embedding" vector(384) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "knowledgeSourceId" TEXT NOT NULL,

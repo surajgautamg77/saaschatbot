@@ -161,7 +161,7 @@ model KnowledgeSource {
 model KnowledgeChunk {
   id                String          @id @default(cuid())
   content           String
-  embedding         Unsupported("vector(768)")
+  embedding         Unsupported("vector(384)")
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
